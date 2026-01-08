@@ -1,0 +1,45 @@
+{
+	"name": "product-variants-core",
+	"version": "0.1.1",
+	"description": "Utilities for generating product variant combinations (variantKeys), labels, and child variants.",
+	"keywords": [
+		"product",
+		"variants",
+		"variant",
+		"sku",
+		"ecommerce"
+	],
+	"license": "MIT",
+	"author": "",
+	"repository": {
+		"type": "git",
+		"url": ""
+	},
+	"homepage": "",
+	"bugs": {
+		"url": ""
+	},
+	"type": "module",
+	"sideEffects": false,
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"build": "tsc -p tsconfig.json",
+		"clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+		"prepublishOnly": "npm run clean && npm run build"
+	},
+	"devDependencies": {
+		"typescript": "^5.6.2"
+	}
+}
