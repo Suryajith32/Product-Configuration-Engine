@@ -1,4 +1,4 @@
-import { VariantOption, VariantSelectionItem, VariantType } from "./index";
+import type { VariantOption, VariantSelectionItem, VariantType } from "./index";
 
 export type ConstraintOperator = "equals" | "not_equals" | "in" | "not_in";
 

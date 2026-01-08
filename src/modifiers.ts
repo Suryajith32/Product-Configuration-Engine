@@ -1,4 +1,4 @@
-import { ChildVariant, VariantSelectionItem } from "./index";
+import type { ChildVariant, VariantSelectionItem } from "./index";
 
 export type ModifierOperation = "add" | "subtract" | "multiply" | "set";
 
