@@ -1,6 +1,6 @@
 {
 	"name": "product-variants-core",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "Utilities for generating product variant combinations (variantKeys), labels, and child variants.",
 	"keywords": [
 		"product",
