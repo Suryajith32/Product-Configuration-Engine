@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/constraintsbuilder.tsx","./src/components/modifiersbuilder.tsx","./src/components/variantbuilder.tsx","./src/components/varianttable.tsx","../src/constraints.ts","../src/index.ts","../src/modifiers.ts"],"version":"5.7.3"}
