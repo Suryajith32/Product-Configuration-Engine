@@ -13,11 +13,11 @@
 	"author": "",
 	"repository": {
 		"type": "git",
-		"url": ""
+		"url": "https://github.com/Suryajith32/Product-Configuration-Engine"
 	},
-	"homepage": "",
+	"homepage": "https://github.com/Suryajith32/Product-Configuration-Engine/blob/main/README.md",
 	"bugs": {
-		"url": ""
+		"url": "https://github.com/Suryajith32/Product-Configuration-Engine/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
