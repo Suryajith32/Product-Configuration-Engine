@@ -42,7 +42,7 @@ function App() {
             <a href="/" className="app-title">
               Product Configuration Engine
               <span className="badge">Playground</span>
-              <span className="badge version">v0.1.3</span>
+              <span className="badge version">v0.1.4</span>
             </a>
           </div>
           <div className="header-actions">
@@ -72,7 +72,7 @@ function App() {
               <div className="notification-dropdown">
                 <div className="notif-header">
                   <h4>What's New</h4>
-                  <span className="notif-version">v0.1.3</span>
+                  <span className="notif-version">v0.1.4</span>
                 </div>
                 <div className="notif-content">
                   <div className="notif-item">
