@@ -4,6 +4,17 @@
 
 `product-variants-core` is a framework-agnostic library for building complex "E-Commerce Product Builders". It handles the hard logic of variant generation, dependency constraints, dynamic pricing modifiers, and state reconciliation so you can focus on building a beautiful UI.
 
+## 🚀 Live Demo
+
+Experience the engine in action with our interactive playground:
+**[View Interactive Playground](https://Suryajith32.github.io/Product-Configuration-Engine/)**
+
+The playground allows you to:
+- Generate product variants in real-time.
+- Test the constraint engine with custom rules.
+- See dynamic price modifiers in action.
+- Explore the smart reconciliation logic.
+
 **Zero dependencies. Pure TypeScript. < 2KB gzipped.**
 
 ---

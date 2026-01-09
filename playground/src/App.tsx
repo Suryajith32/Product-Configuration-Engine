@@ -29,7 +29,7 @@ function App() {
             <a href="/" className="app-title">
               Product Configuration Engine
               <span className="badge">Playground</span>
-              <span className="badge version">v0.1.2</span>
+              <span className="badge version">v0.1.3</span>
             </a>
           </div>
           <div className="header-actions">
