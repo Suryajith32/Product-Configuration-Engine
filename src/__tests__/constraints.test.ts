@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { validateSelection, getAvailableOptions, VariantConstraint } from '../constraints';
-import { VariantSelectionItem, VariantType } from '../index';
+import { validateSelection, getAvailableOptions } from '../constraints';
+import type { VariantConstraint } from '../constraints';
+import type { VariantSelectionItem, VariantType } from '../index';
 
 describe('Constraint Engine', () => {
     const constraints: VariantConstraint[] = [
