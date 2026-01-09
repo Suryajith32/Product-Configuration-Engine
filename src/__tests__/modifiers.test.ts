@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { applyModifiers, VariantModifier } from '../modifiers';
-import { VariantSelectionItem, ChildVariant } from '../index';
+import { applyModifiers } from '../modifiers';
+import type { VariantModifier } from '../modifiers';
+import type { VariantSelectionItem, ChildVariant } from '../index';
 
 describe('Modifier Engine', () => {
     const modifiers: VariantModifier[] = [
