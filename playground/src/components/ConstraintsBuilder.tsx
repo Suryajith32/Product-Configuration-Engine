@@ -1,4 +1,5 @@
 import type { VariantType, VariantConstraint } from 'product-variants-core';
+import { ConditionBuilder } from './ConditionBuilder';
 
 interface ConstraintsBuilderProps {
     variantTypes: VariantType[];
@@ -10,7 +11,7 @@ export function ConstraintsBuilder({ variantTypes, constraints, onChange }: Cons
     const addConstraint = () => {
         const newConstraint: VariantConstraint = {
             id: crypto.randomUUID(),
-            if: { typeValue: variantTypes[0]?.value || '', optionValue: '' },
+            if: { typeValue: variantTypes[0]?.value || '', optionValue: '' }, // Default to simple
             then: { typeValue: variantTypes[1]?.value || '', action: 'allow', options: [] }
         };
         onChange([...constraints, newConstraint]);
@@ -20,15 +21,10 @@ export function ConstraintsBuilder({ variantTypes, constraints, onChange }: Cons
         onChange(constraints.filter((_, i) => i !== index));
     };
 
-    const updateConstraint = (index: number, partial: Partial<VariantConstraint> | any) => {
+    const updateConstraint = (index: number, partial: Partial<VariantConstraint>) => {
         const next = [...constraints];
         next[index] = { ...next[index], ...partial };
         onChange(next);
-    };
-
-    const updateIf = (index: number, field: keyof VariantConstraint['if'], value: string) => {
-        const current = constraints[index];
-        updateConstraint(index, { if: { ...current.if, [field]: value } });
     };
 
     const updateThen = (index: number, field: keyof VariantConstraint['then'], value: any) => {
@@ -56,78 +52,69 @@ export function ConstraintsBuilder({ variantTypes, constraints, onChange }: Cons
             )}
 
             <div className="rules-list">
-                {constraints.map((constraint, idx) => (
-                    <div key={constraint.id} className="rule-card">
-                        <div className="rule-header">
-                            <span className="rule-index">Rule #{idx + 1}</span>
-                            <button
-                                className="btn-icon danger sm"
-                                onClick={() => removeConstraint(idx)}
-                                title="Remove Rule"
-                            >&times;</button>
-                        </div>
-
-                        <div className="rule-logic">
-                            <div className="logic-group">
-                                <span className="keyword">IF</span>
-                                <select
-                                    value={constraint.if.typeValue}
-                                    onChange={(e) => updateIf(idx, 'typeValue', e.target.value)}
-                                >
-                                    {variantTypes.map(t => <option key={t.value} value={t.value}>{t.value}</option>)}
-                                </select>
-                                <span>is</span>
-                                <select
-                                    value={constraint.if.optionValue as string}
-                                    onChange={(e) => updateIf(idx, 'optionValue', e.target.value)}
-                                >
-                                    <option value="">Select Option...</option>
-                                    {variantTypes.find(t => t.value === constraint.if.typeValue)?.variantOptions.map(o => (
-                                        <option key={o.value} value={o.value}>{o.value}</option>
-                                    ))}
-                                </select>
+                {constraints.map((constraint, idx) => {
+                    return (
+                        <div key={constraint.id} className="rule-card">
+                            <div className="rule-header">
+                                <span className="rule-index">Rule #{idx + 1}</span>
+                                <button
+                                    className="btn-icon danger sm"
+                                    onClick={() => removeConstraint(idx)}
+                                    title="Remove Rule"
+                                >&times;</button>
                             </div>
 
-                            <div className="logic-group">
-                                <span className="keyword">THEN</span>
-                                <select
-                                    value={constraint.then.typeValue}
-                                    onChange={(e) => updateThen(idx, 'typeValue', e.target.value)}
-                                >
-                                    {variantTypes.filter(t => t.value !== constraint.if.typeValue).map(t => (
-                                        <option key={t.value} value={t.value}>{t.value}</option>
-                                    ))}
-                                </select>
-                                <select
-                                    value={constraint.then.action}
-                                    onChange={(e) => updateThen(idx, 'action', e.target.value)}
-                                >
-                                    <option value="allow">must be</option>
-                                    <option value="disallow">cannot be</option>
-                                </select>
+                            <div className="rule-logic">
+                                {/* Recursive IF Condition */}
+                                <div className="logic-group" style={{ alignItems: 'flex-start', flexDirection: 'column', gap: '5px' }}>
+                                    <ConditionBuilder
+                                        condition={constraint.if}
+                                        onChange={(newCondition) => updateConstraint(idx, { if: newCondition })}
+                                        variantTypes={variantTypes}
+                                    />
+                                </div>
 
-                                <div className="multi-select">
-                                    {variantTypes.find(t => t.value === constraint.then.typeValue)?.variantOptions.map(o => (
-                                        <label key={o.value} className="checkbox-label">
-                                            <input
-                                                type="checkbox"
-                                                checked={constraint.then.options.includes(o.value)}
-                                                onChange={(e) => {
-                                                    const currentOpts = constraint.then.options;
-                                                    const newOpts = e.target.checked
-                                                        ? [...currentOpts, o.value]
-                                                        : currentOpts.filter(v => v !== o.value);
-                                                    updateThen(idx, 'options', newOpts);
-                                                }}
-                                            />
-                                            {o.value}
-                                        </label>
-                                    ))}
+                                <div className="logic-group">
+                                    <span className="keyword">THEN</span>
+                                    <select
+                                        value={constraint.then.typeValue}
+                                        onChange={(e) => updateThen(idx, 'typeValue', e.target.value)}
+                                    >
+                                        {variantTypes.map(t => (
+                                            <option key={t.value} value={t.value}>{t.value}</option>
+                                        ))}
+                                    </select>
+                                    <select
+                                        value={constraint.then.action}
+                                        onChange={(e) => updateThen(idx, 'action', e.target.value)}
+                                    >
+                                        <option value="allow">must be</option>
+                                        <option value="disallow">cannot be</option>
+                                    </select>
+
+                                    <div className="multi-select">
+                                        {variantTypes.find(t => t.value === constraint.then.typeValue)?.variantOptions.map(o => (
+                                            <label key={o.value} className="checkbox-label">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={constraint.then.options.includes(o.value)}
+                                                    onChange={(e) => {
+                                                        const currentOpts = constraint.then.options;
+                                                        const newOpts = e.target.checked
+                                                            ? [...currentOpts, o.value]
+                                                            : currentOpts.filter(v => v !== o.value);
+                                                        updateThen(idx, 'options', newOpts);
+                                                    }}
+                                                />
+                                                {o.value}
+                                            </label>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
                 {constraints.length === 0 && variantTypes.length >= 2 && (
                     <div className="empty-state">No constraints defined.</div>
                 )}

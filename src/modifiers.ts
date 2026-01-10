@@ -1,20 +1,17 @@
 import type { ChildVariant, VariantSelectionItem } from "./index";
+import { isConditionMet } from "./constraints";
+import type { LogicCondition } from "./constraints";
 
 export type ModifierOperation = "add" | "subtract" | "multiply" | "set";
-
-export type ModifierCondition = {
-    typeValue: string;
-    optionValue: string | string[]; // Can match strictly or be in a list
-};
 
 export type VariantModifier = {
     id: string;
     description?: string;
     /**
      * The condition that triggers this modifier.
-     * e.g. "IF Size is XXL"
+     * Can be a simple check or recursive logic.
      */
-    if: ModifierCondition;
+    if: LogicCondition;
     /**
      * The changes to apply to the variant fields.
      */
@@ -25,25 +22,6 @@ export type VariantModifier = {
         value: string | number;
     }[];
 };
-
-/**
- * Checks if a selection matches the modifier condition.
- */
-function isConditionMet(
-    selection: VariantSelectionItem[],
-    condition: ModifierCondition
-): boolean {
-    const selectedItem = selection.find((s) => s.typeValue === condition.typeValue);
-    if (!selectedItem) return false;
-
-    const val = selectedItem.optionValue;
-    const target = condition.optionValue;
-
-    if (Array.isArray(target)) {
-        return target.includes(val);
-    }
-    return val === target;
-}
 
 /**
  * Applies a list of modifiers to a base product configuration
