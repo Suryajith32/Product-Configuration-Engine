@@ -22,6 +22,7 @@ The playground allows you to:
 ### What's New
 It is now a full-fledged **Product Configuration Engine** capable of handling complex rules and dynamic pricing.
 - **Strict Validation**: You can define rules like _"Leather cannot be Pink"_.
+- **Recursive Logic**: Support for complex `AND`/`OR` nested conditions.
 - **Dynamic Calculations**: You can define rules like _"XXL adds $5.00"_.
 
 ---
@@ -29,7 +30,7 @@ It is now a full-fledged **Product Configuration Engine** capable of handling co
 ## Features
 
 - 🧬 **Variant Generation**: Instantly generate Cartesian product combinations (e.g., `Color: Red` + `Size: M` → `SKU-RED-M`).
-- 🛡️ **Constraint Engine**: Define complex rules to prevent invalid selections (e.g., "Leather requires standard shipping", "Pink is not available in XXL").
+- 🛡️ **Constraint Engine**: Define complex rules to prevent invalid selections (e.g., "Leather requires standard shipping", "Pink is not available in XXL"). Supports recursive `AND`/`OR` logic.
 - ⚡ **Modifier Engine**: Dynamic parameter calculation (e.g., "Size XXL adds $5.00 to price", "Gold material adds 'Premium' tag").
 - 🔄 **Smart Reconciliation**: The "Killer Feature". Preserves user-entered data (SKUs, stock, prices) even when options are reordered, inserted, or renamed.
 - ✨ **Input Normalization**: Automatically deduplicates and cleans messy user input.
@@ -87,6 +88,35 @@ if (!result.valid) {
 
 // Get only valid next options for UI dropdowns
 const allowedColors = getAvailableOptions(colorType, userSelection, constraints);
+```
+
+### 2.1 Advanced Logic (Recursive Conditions)
+
+Create complex rules using nested `AND` / `OR` groups.
+
+```typescript
+const complexConstraint: VariantConstraint = {
+  id: "premium-rule",
+  // IF (Color is Red AND Size is S) OR (Material is Leather)
+  if: {
+    operator: "OR",
+    conditions: [
+      {
+        operator: "AND",
+        conditions: [
+          { typeValue: "Color", optionValue: "Red" },
+          { typeValue: "Size", optionValue: "S" }
+        ]
+      },
+      { typeValue: "Material", optionValue: "Leather" }
+    ]
+  },
+  then: {
+    typeValue: "Shipping",
+    action: "allow",
+    options: ["Express"] // Must choose Express shipping
+  }
+};
 ```
 
 ### 3. Modifier Engine (Dynamic Pricing)

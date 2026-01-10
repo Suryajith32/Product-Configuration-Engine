@@ -72,7 +72,7 @@ function App() {
               <div className="notification-dropdown">
                 <div className="notif-header">
                   <h4>What's New</h4>
-                  <span className="notif-version">v0.1.4</span>
+                  <span className="notif-version">v0.2.0</span>
                 </div>
                 <div className="notif-content">
                   <div className="notif-item">
