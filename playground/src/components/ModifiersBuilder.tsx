@@ -1,4 +1,5 @@
 import type { VariantType, VariantModifier } from 'product-variants-core';
+import { ConditionBuilder } from './ConditionBuilder';
 
 interface ModifiersBuilderProps {
     variantTypes: VariantType[];
@@ -20,15 +21,10 @@ export function ModifiersBuilder({ variantTypes, modifiers, onChange }: Modifier
         onChange(modifiers.filter((_, i) => i !== index));
     };
 
-    const updateModifier = (index: number, partial: Partial<VariantModifier> | any) => {
+    const updateModifier = (index: number, partial: Partial<VariantModifier>) => {
         const next = [...modifiers];
         next[index] = { ...next[index], ...partial };
         onChange(next);
-    };
-
-    const updateIf = (index: number, field: keyof VariantModifier['if'], value: string) => {
-        const current = modifiers[index];
-        updateModifier(index, { if: { ...current.if, [field]: value } });
     };
 
     const updateThen = (modIndex: number, actionIndex: number, field: string, value: any) => {
@@ -58,28 +54,18 @@ export function ModifiersBuilder({ variantTypes, modifiers, onChange }: Modifier
                             <button
                                 className="btn-icon danger sm"
                                 onClick={() => removeModifier(idx)}
+                                title="Remove Rule"
                             >&times;</button>
                         </div>
 
                         <div className="rule-logic">
-                            <div className="logic-group">
-                                <span className="keyword">IF</span>
-                                <select
-                                    value={modifier.if.typeValue}
-                                    onChange={(e) => updateIf(idx, 'typeValue', e.target.value)}
-                                >
-                                    {variantTypes.map(t => <option key={t.value} value={t.value}>{t.value}</option>)}
-                                </select>
-                                <span>is</span>
-                                <select
-                                    value={modifier.if.optionValue as string}
-                                    onChange={(e) => updateIf(idx, 'optionValue', e.target.value)}
-                                >
-                                    <option value="">Select Option...</option>
-                                    {variantTypes.find(t => t.value === modifier.if.typeValue)?.variantOptions.map(o => (
-                                        <option key={o.value} value={o.value}>{o.value}</option>
-                                    ))}
-                                </select>
+                            {/* Recursive IF Condition */}
+                            <div className="logic-group" style={{ alignItems: 'flex-start', flexDirection: 'column', gap: '5px' }}>
+                                <ConditionBuilder
+                                    condition={modifier.if}
+                                    onChange={(newCondition) => updateModifier(idx, { if: newCondition })}
+                                    variantTypes={variantTypes}
+                                />
                             </div>
 
                             <div className="logic-group">

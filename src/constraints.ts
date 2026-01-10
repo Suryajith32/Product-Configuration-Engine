@@ -2,20 +2,30 @@ import type { VariantOption, VariantSelectionItem, VariantType } from "./index";
 
 export type ConstraintOperator = "equals" | "not_equals" | "in" | "not_in";
 
-export type ConstraintCondition = {
+export type SimpleCondition = {
   typeValue: string;
   optionValue: string | string[];
   operator?: ConstraintOperator;
 };
+
+export type RecursiveCondition = {
+  operator: "AND" | "OR";
+  conditions: LogicCondition[];
+};
+
+export type LogicCondition = SimpleCondition | RecursiveCondition;
+
+// Backward compatibility or alias for cleaner code
+export type ConstraintCondition = LogicCondition;
 
 export type VariantConstraint = {
   id: string;
   description?: string;
   /**
    * The condition that triggers this constraint.
-   * e.g. "IF Color is Red"
+   * Can be a simple check (e.g. "Color is Red") or a complex recursive logic ("A AND (B OR C)")
    */
-  if: ConstraintCondition;
+  if: LogicCondition;
   /**
    * The effect enforced when the condition is met.
    * e.g. "THEN Size must be in [S, M]"
@@ -31,32 +41,59 @@ export type VariantConstraint = {
   };
 };
 
+function isSimpleCondition(c: LogicCondition): c is SimpleCondition {
+  return (c as SimpleCondition).typeValue !== undefined;
+}
+
 /**
- * Checks if a specific selection satisfies a condition.
+ * Checks if a specific selection satisfies a condition (Recursive).
  */
-function isConditionMet(
+export function isConditionMet(
   selection: VariantSelectionItem[],
-  condition: ConstraintCondition
+  condition: LogicCondition
 ): boolean {
-  const selectedItem = selection.find((s) => s.typeValue === condition.typeValue);
-  if (!selectedItem) return false;
+  // Case 1: Simple Leaf Condition
+  if (isSimpleCondition(condition)) {
+    const selectedItem = selection.find((s) => s.typeValue === condition.typeValue);
+    // If the variant type is not selected at all, the condition assumes "false" unless we assume strictly negation?
+    // Generally, "If Color is Red" -> if Color not selected, it's not Red.
+    if (!selectedItem) return false;
 
-  const val = selectedItem.optionValue;
-  const target = condition.optionValue;
-  const op = condition.operator ?? "equals";
+    const val = selectedItem.optionValue;
+    const target = condition.optionValue;
 
-  switch (op) {
-    case "equals":
-      return val === target;
-    case "not_equals":
-      return val !== target;
-    case "in":
-      return Array.isArray(target) && target.includes(val);
-    case "not_in":
-      return Array.isArray(target) && !target.includes(val);
-    default:
-      return false;
+    let op = condition.operator;
+    if (!op) {
+      op = Array.isArray(target) ? "in" : "equals";
+    }
+
+    switch (op) {
+      case "equals":
+        return val === target;
+      case "not_equals":
+        return val !== target;
+      case "in":
+        return Array.isArray(target) && target.includes(val);
+      case "not_in":
+        return Array.isArray(target) && !target.includes(val);
+      default:
+        return false;
+    }
   }
+
+  // Case 2: Recursive Group (AND / OR)
+  const { operator, conditions } = condition as RecursiveCondition;
+  if (!conditions || conditions.length === 0) return false;
+
+  if (operator === "AND") {
+    // All must be true
+    return conditions.every((c) => isConditionMet(selection, c));
+  } else if (operator === "OR") {
+    // At least one must be true
+    return conditions.some((c) => isConditionMet(selection, c));
+  }
+
+  return false;
 }
 
 export type ValidatorResult = {
