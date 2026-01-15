@@ -699,7 +699,7 @@ select {
   pointer-events: none;
 }
 
-.notification-wrapper:hover .notification-dropdown {
+.notification-wrapper.active .notification-dropdown {
   opacity: 1;
   visibility: visible;
   transform: translateY(0) scale(1);

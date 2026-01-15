@@ -21,17 +21,19 @@ function App() {
   const [constraints, setConstraints] = useState<VariantConstraint[]>([]);
   const [modifiers, setModifiers] = useState<VariantModifier[]>([]);
   const [hasNewUpdate, setHasNewUpdate] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   useEffect(() => {
-    const hasSeenUpdate = localStorage.getItem('pce_v0.1.3_update_seen');
+    const hasSeenUpdate = localStorage.getItem('pce_v1.0.0_update_seen');
     if (!hasSeenUpdate) {
       setHasNewUpdate(true);
     }
   }, []);
 
   const clearNotification = () => {
-    localStorage.setItem('pce_v0.1.3_update_seen', 'true');
+    localStorage.setItem('pce_v1.0.0_update_seen', 'true');
     setHasNewUpdate(false);
+    setIsNotificationOpen(false); // Close on clear
   };
 
   const loadExample = () => {
@@ -142,7 +144,7 @@ function App() {
             <a href="/" className="app-title">
               Product Configuration Engine
               <span className="badge">Playground</span>
-              <span className="badge version">v0.2.0</span>
+              <span className="badge version">v1.0.0</span>
             </a>
           </div>
           <div className="header-actions">
@@ -164,8 +166,17 @@ function App() {
               Load Demo
             </button>
 
-            <div className="notification-wrapper">
-              <button className="notification-trigger" aria-label="What's New">
+            <div className={`notification-wrapper ${isNotificationOpen ? 'active' : ''}`}>
+              <button
+                className="notification-trigger"
+                aria-label="What's New"
+                onClick={() => {
+                  setIsNotificationOpen(!isNotificationOpen);
+                  if (!isNotificationOpen && hasNewUpdate) {
+                    // Optional: clear on open or keep manual clear? Keeping manual for now.
+                  }
+                }}
+              >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                   <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
@@ -175,26 +186,32 @@ function App() {
 
               <div className="notification-dropdown">
                 <div className="notif-header">
-                  <h4>What's New</h4>
-                  <span className="notif-version">v0.2.0</span>
+                  <h4>What's New in v1.0.0</h4>
+                  <span className="notif-version">Stable</span>
                 </div>
                 <div className="notif-content">
                   <div className="notif-item">
-                    <span className="notif-item-icon">⚡</span>
+                    <span className="notif-item-icon">🚀</span>
                     <div className="notif-item-text">
-                      <p><strong>Modifier Engine</strong> is now live! Apply dynamic pricing and field adjustments.</p>
+                      <p><strong>Product Configuration Engine</strong>: Core logic for managing complex product variants is now stable.</p>
                     </div>
                   </div>
                   <div className="notif-item">
                     <span className="notif-item-icon">🛡️</span>
                     <div className="notif-item-text">
-                      <p><strong>Constraint Engine</strong> added for complex rule-based variant exclusion.</p>
+                      <p><strong>Constraint Management</strong>: Define invalid combinations (e.g., specific Model + RAM) easily.</p>
                     </div>
                   </div>
                   <div className="notif-item">
-                    <span className="notif-item-icon">🔄</span>
+                    <span className="notif-item-icon">⚡</span>
                     <div className="notif-item-text">
-                      <p>Enhanced <strong>Smart Reconciliation</strong> for better state preservation.</p>
+                      <p><strong>Interactive Playground</strong>: Real-time testing of configs, constraints, and modifiers.</p>
+                    </div>
+                  </div>
+                  <div className="notif-item">
+                    <span className="notif-item-icon">📦</span>
+                    <div className="notif-item-text">
+                      <p><strong>Stable Release</strong>: Production-ready architecture for your next project.</p>
                     </div>
                   </div>
                 </div>
