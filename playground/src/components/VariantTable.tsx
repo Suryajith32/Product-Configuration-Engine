@@ -48,16 +48,27 @@ export function VariantTable({ variantTypes, constraints, modifiers }: VariantTa
         });
     }, [children, variantTypes, constraints, modifiers]);
 
-    const getConstraintReason = (constraintId?: string) => {
-        if (!constraintId) return null;
-        const constraint = constraints.find(c => c.id === constraintId);
-        if (!constraint) return 'Unknown constraint';
+    const getConstraintReason = (constraintIds?: string[]) => {
+        if (!constraintIds || constraintIds.length === 0) return null;
 
-        // Simple readable format
-        const ifPart = `IF ${constraint.if.typeValue} ${constraint.if.operator} '${constraint.if.optionValue}'`;
-        const thenPart = `THEN ${constraint.then.typeValue} ${constraint.then.action} [${constraint.then.options.join(', ')}]`;
+        return constraintIds.map(constraintId => {
+            const constraint = constraints.find(c => c.id === constraintId);
+            if (!constraint) return 'Unknown constraint';
 
-        return `${ifPart} ${thenPart}`;
+            // Cast to any to handle Union types (Simple vs Logic) for display
+            const cond = constraint.if as any;
+
+            let ifPart = '';
+            if (cond.typeValue) {
+                ifPart = `IF ${cond.typeValue} ${cond.operator} '${cond.optionValue}'`;
+            } else {
+                ifPart = `IF [Complex Condition]`;
+            }
+
+            const thenPart = `THEN ${constraint.then.typeValue} ${constraint.then.action} [${constraint.then.options.join(', ')}]`;
+
+            return `${ifPart} ${thenPart}`;
+        }).join('; ');
     };
 
     return (
