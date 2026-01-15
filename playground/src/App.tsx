@@ -21,17 +21,119 @@ function App() {
   const [constraints, setConstraints] = useState<VariantConstraint[]>([]);
   const [modifiers, setModifiers] = useState<VariantModifier[]>([]);
   const [hasNewUpdate, setHasNewUpdate] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   useEffect(() => {
-    const hasSeenUpdate = localStorage.getItem('pce_v0.1.3_update_seen');
+    const hasSeenUpdate = localStorage.getItem('pce_v1.0.0_update_seen');
     if (!hasSeenUpdate) {
       setHasNewUpdate(true);
     }
   }, []);
 
   const clearNotification = () => {
-    localStorage.setItem('pce_v0.1.3_update_seen', 'true');
+    localStorage.setItem('pce_v1.0.0_update_seen', 'true');
     setHasNewUpdate(false);
+    setIsNotificationOpen(false); // Close on clear
+  };
+
+  const loadExample = () => {
+    // 1. Define Variant Types (Laptop Config)
+    const exampleVariants: VariantType[] = [
+      {
+        value: 'Model',
+        variantOptions: [
+          { value: 'Base' }, // Base price: 800
+          { value: 'Pro' }   // Base price: 1200
+        ]
+      },
+      {
+        value: 'RAM',
+        variantOptions: [
+          { value: '8GB' },
+          { value: '16GB' },
+          { value: '32GB' }
+        ]
+      },
+      {
+        value: 'Storage',
+        variantOptions: [
+          { value: '256GB' },
+          { value: '512GB' },
+          { value: '1TB' }
+        ]
+      }
+    ];
+
+    // 2. Define Constraints (Validation Rules)
+    const exampleConstraints: VariantConstraint[] = [
+      {
+        id: crypto.randomUUID(),
+        if: {
+          typeValue: 'Model',
+          operator: 'equals',
+          optionValue: 'Base'
+        },
+        then: {
+          typeValue: 'RAM',
+          action: 'disallow',
+          options: ['32GB']
+        }
+      },
+      {
+        id: crypto.randomUUID(),
+        if: {
+          typeValue: 'Model',
+          operator: 'equals',
+          optionValue: 'Pro'
+        },
+        then: {
+          typeValue: 'RAM',
+          action: 'disallow',
+          options: ['8GB']
+        }
+      }
+    ];
+
+    // 3. Define Modifiers (Price Adjustments & Metadata)
+    const exampleModifiers: VariantModifier[] = [
+      // Base Prices
+      {
+        id: crypto.randomUUID(),
+        if: { typeValue: 'Model', operator: 'equals', optionValue: 'Base' },
+        then: [{ field: 'cost', operation: 'set', value: 800 }]
+      },
+      {
+        id: crypto.randomUUID(),
+        if: { typeValue: 'Model', operator: 'equals', optionValue: 'Pro' },
+        then: [{ field: 'cost', operation: 'set', value: 1200 }]
+      },
+      // RAM Upgrades
+      {
+        id: crypto.randomUUID(),
+        if: { typeValue: 'RAM', operator: 'equals', optionValue: '16GB' },
+        then: [{ field: 'cost', operation: 'add', value: 100 }]
+      },
+      {
+        id: crypto.randomUUID(),
+        if: { typeValue: 'RAM', operator: 'equals', optionValue: '32GB' },
+        then: [{ field: 'cost', operation: 'add', value: 250 }]
+      },
+      // Storage Upgrades
+      {
+        id: crypto.randomUUID(),
+        if: { typeValue: 'Storage', operator: 'equals', optionValue: '512GB' },
+        then: [{ field: 'cost', operation: 'add', value: 50 }]
+      },
+      {
+        id: crypto.randomUUID(),
+        if: { typeValue: 'Storage', operator: 'equals', optionValue: '1TB' },
+        then: [{ field: 'cost', operation: 'add', value: 150 }]
+      }
+    ];
+
+    setVariantTypes(exampleVariants);
+    setConstraints(exampleConstraints);
+    setModifiers(exampleModifiers);
   };
 
   return (
@@ -42,7 +144,7 @@ function App() {
             <a href="/" className="app-title">
               Product Configuration Engine
               <span className="badge">Playground</span>
-              <span className="badge version">v0.2.0</span>
+              <span className="badge version">v1.0.0</span>
             </a>
           </div>
           <div className="header-actions">
@@ -60,8 +162,21 @@ function App() {
               <svg height="24" viewBox="0 0 16 16" width="24" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.08 10 14.94 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z"></path></svg>
             </a>
 
-            <div className="notification-wrapper">
-              <button className="notification-trigger" aria-label="What's New">
+            <button className="btn-load-example" onClick={loadExample} aria-label="Load Example">
+              Load Demo
+            </button>
+
+            <div className={`notification-wrapper ${isNotificationOpen ? 'active' : ''}`}>
+              <button
+                className="notification-trigger"
+                aria-label="What's New"
+                onClick={() => {
+                  setIsNotificationOpen(!isNotificationOpen);
+                  if (!isNotificationOpen && hasNewUpdate) {
+                    // Optional: clear on open or keep manual clear? Keeping manual for now.
+                  }
+                }}
+              >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                   <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
@@ -71,26 +186,32 @@ function App() {
 
               <div className="notification-dropdown">
                 <div className="notif-header">
-                  <h4>What's New</h4>
-                  <span className="notif-version">v0.2.0</span>
+                  <h4>What's New in v1.0.0</h4>
+                  <span className="notif-version">Stable</span>
                 </div>
                 <div className="notif-content">
                   <div className="notif-item">
-                    <span className="notif-item-icon">⚡</span>
+                    <span className="notif-item-icon">🚀</span>
                     <div className="notif-item-text">
-                      <p><strong>Modifier Engine</strong> is now live! Apply dynamic pricing and field adjustments.</p>
+                      <p><strong>Product Configuration Engine</strong>: Core logic for managing complex product variants is now stable.</p>
                     </div>
                   </div>
                   <div className="notif-item">
                     <span className="notif-item-icon">🛡️</span>
                     <div className="notif-item-text">
-                      <p><strong>Constraint Engine</strong> added for complex rule-based variant exclusion.</p>
+                      <p><strong>Constraint Management</strong>: Define invalid combinations (e.g., specific Model + RAM) easily.</p>
                     </div>
                   </div>
                   <div className="notif-item">
-                    <span className="notif-item-icon">🔄</span>
+                    <span className="notif-item-icon">⚡</span>
                     <div className="notif-item-text">
-                      <p>Enhanced <strong>Smart Reconciliation</strong> for better state preservation.</p>
+                      <p><strong>Interactive Playground</strong>: Real-time testing of configs, constraints, and modifiers.</p>
+                    </div>
+                  </div>
+                  <div className="notif-item">
+                    <span className="notif-item-icon">📦</span>
+                    <div className="notif-item-text">
+                      <p><strong>Stable Release</strong>: Production-ready architecture for your next project.</p>
                     </div>
                   </div>
                 </div>

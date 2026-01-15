@@ -48,6 +48,18 @@ export function VariantTable({ variantTypes, constraints, modifiers }: VariantTa
         });
     }, [children, variantTypes, constraints, modifiers]);
 
+    const getConstraintReason = (constraintId?: string) => {
+        if (!constraintId) return null;
+        const constraint = constraints.find(c => c.id === constraintId);
+        if (!constraint) return 'Unknown constraint';
+
+        // Simple readable format
+        const ifPart = `IF ${constraint.if.typeValue} ${constraint.if.operator} '${constraint.if.optionValue}'`;
+        const thenPart = `THEN ${constraint.then.typeValue} ${constraint.then.action} [${constraint.then.options.join(', ')}]`;
+
+        return `${ifPart} ${thenPart}`;
+    };
+
     return (
         <div className="variant-table-container">
             <h2>Generated Combinations <span>({children.length})</span></h2>
@@ -70,13 +82,26 @@ export function VariantTable({ variantTypes, constraints, modifiers }: VariantTa
                         </tr>
                     ) : (
                         processedChildren.map((child, idx) => (
-                            <tr key={child.variantKey} style={{ opacity: child.isValid ? 1 : 0.5 }}>
+                            <tr key={child.variantKey} style={{ opacity: child.isValid ? 1 : 0.7, background: child.isValid ? 'transparent' : '#fafafa' }}>
                                 <td style={{ color: 'var(--color-text-tertiary)' }}>{idx + 1}</td>
                                 <td>
                                     <div className="code-cell">{child.variantKey}</div>
                                     <div style={{ fontSize: '0.8rem', marginTop: '0.2rem', color: 'var(--color-text-secondary)' }}>
                                         {variantKeyToLabel(child.variantKey, variantTypes)}
                                     </div>
+                                    {!child.isValid && child.blockedBy && (
+                                        <div style={{
+                                            marginTop: '0.4rem',
+                                            fontSize: '0.75rem',
+                                            color: '#EF4444',
+                                            background: '#FEE2E2',
+                                            padding: '0.2rem 0.5rem',
+                                            borderRadius: '4px',
+                                            display: 'inline-block'
+                                        }}>
+                                            <strong>Blocked:</strong> {getConstraintReason(child.blockedBy)}
+                                        </div>
+                                    )}
                                 </td>
                                 <td>
                                     {child.isValid ? (
