@@ -214,9 +214,9 @@ button {
 
 /* On large screens, make results panel sticky and span height */
 @media (min-width: 1024px) {
-  .main-content {
+  /* .main-content {
     grid-template-columns: minmax(400px, 1fr) 1fr;
-  }
+  } */
 
   /* Target the panels based on order if not using specific classes for all */
   /* VariantBuilder (1st child), Constraints (2nd), Modifiers (3rd) -> Left Column */
@@ -366,6 +366,32 @@ input[type="text"]:focus {
   border-color: var(--color-primary);
   color: var(--color-primary);
   background: var(--color-primary-light);
+}
+
+.btn-load-example {
+  background: white;
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-load-example:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn-load-example:active {
+  transform: translateY(0);
 }
 
 /* Variant Type Cards */
